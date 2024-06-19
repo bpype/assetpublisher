@@ -1,0 +1,13 @@
+{
+    "Materials": {
+        "transparent": {
+            "name": "SHD_Transparent"
+        },
+        "transparent_no_shadow": {
+            "name": "SHD_TransparentNoShadow"
+        },
+        "shadow_catcher": {
+            "name": "SHD_ShadowCatcher"
+        }
+    }
+}
