@@ -30,10 +30,15 @@ bl_info = {
 import importlib
 from bpy.utils import register_class, unregister_class
 from typing import List
-from .module import assetlo, metadata
+from .module import assetlo, metadata, collection
+from . import dependencies
+
+
+dependencies.preload_modules()
 
 modules = (
     metadata,
+    collection,
     assetlo,
 )
 
