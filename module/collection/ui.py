@@ -38,7 +38,7 @@ class AP_PT_collection_tools(AP_PT_collection_panel, Panel):
         layout.use_property_split = True
         layout.use_property_decorate = False
 
-        layout.operator("outliner.ap_collection_from_yaml", text="Generate")
+        layout.operator("outliner.ap_collection_from_yaml", text="Collection Setup")
 
 
 registry = [AP_PT_collection_tools]
