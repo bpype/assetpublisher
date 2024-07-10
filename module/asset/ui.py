@@ -18,7 +18,7 @@
 from bpy.types import Panel
 
 
-class AP_PT_liblo_panel:
+class AP_PT_asset_panel:
     """
     Panel in 3D Viewport Sidebar
     """
@@ -28,4 +28,17 @@ class AP_PT_liblo_panel:
     bl_category = "AP"
 
 
-registry = []
+class AP_PT_asset_tools(AP_PT_asset_panel, Panel):
+    bl_label = "Asset"
+    bl_parent_id = "AP_PT_metadata_tools"
+    bl_options = {"HIDE_HEADER"}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+
+        layout.operator("outliner.ap_collection_from_yaml", text="Setup .lo")
+
+
+registry = [AP_PT_asset_tools]
