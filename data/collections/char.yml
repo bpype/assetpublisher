@@ -14,14 +14,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
-- C_Name.Assets:
+- C_Name.Asset:
   - C_Name_MDL.hi:
     - C_Name_MDL_eyes
     - C_Name_MDL_inner
     - C_Name_MDL_hair
     - C_Name_MDL_fur
+    - C_Name_MDL_helper
     - C_Name_MDL_outfit
   - C_Name_MDL.lo
   - C_Name_RIG:
-    - C_Name_RIG_helpers
+    - C_Name_RIG_helper
 - C_Name.Anm
