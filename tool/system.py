@@ -97,35 +97,49 @@ class System:
             return data
 
     @classmethod
-    def create_collection(cls, collection_name, parent=None):
+    def process_asset_data(cls, data, parent_collection=None):
+
+        color = "COLOR_06"
+
         def find_collection_case_insensitive(collection_name):
             for col in bpy.data.collections:
                 if col.name.lower() == collection_name.lower():
                     return col
             return None
 
-        existing_collection = find_collection_case_insensitive(collection_name)
-        if existing_collection:
-            existing_collection.name = collection_name
-            return existing_collection
+        def create_collection(collection_name, parent=None):
+            existing_collection = find_collection_case_insensitive(collection_name)
+            if existing_collection:
+                existing_collection.name = collection_name
+                existing_collection.color_tag = color
+                return existing_collection
 
-        new_collection = bpy.data.collections.new(collection_name)
+            new_collection = bpy.data.collections.new(collection_name)
+            new_collection.color_tag = color
 
-        if parent:
-            parent.children.link(new_collection)
-        else:
-            bpy.context.scene.collection.children.link(new_collection)
+            if parent:
+                parent.children.link(new_collection)
+            else:
+                bpy.context.scene.collection.children.link(new_collection)
 
-        return new_collection
+            return new_collection
 
-    @classmethod
-    def process_asset_data(cls, data, parent_collection=None):
         if isinstance(data, list):
             for item in data:
                 cls.process_asset_data(item, parent_collection)
         elif isinstance(data, dict):
             for key, value in data.items():
-                current_collection = cls.create_collection(key, parent_collection)
+                current_collection = create_collection(key, parent_collection)
                 cls.process_asset_data(value, current_collection)
         elif isinstance(data, str):
-            cls.create_collection(data, parent_collection)
+            create_collection(data, parent_collection)
+
+    @classmethod
+    def duplicate(cls, obj, data=True, actions=True, collection=None):
+        obj_copy = obj.copy()
+        if data:
+            obj_copy.data = obj_copy.data.copy()
+        if actions and obj_copy.animation_data:
+            obj_copy.animation_data.action = obj_copy.animation_data.action.copy()
+        collection.objects.link(obj_copy)
+        return obj_copy
