@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
-import bpy
 import os
+import bpy
 import glob
-from bpy.utils import script_paths
 from yaml import safe_load  # type: ignore
+from bpy.utils import script_paths
 from .. import __package__ as base_package
 
 
