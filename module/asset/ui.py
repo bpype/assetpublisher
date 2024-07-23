@@ -38,7 +38,7 @@ class AP_PT_asset_tools(AP_PT_asset_panel, Panel):
         layout.use_property_split = True
         layout.use_property_decorate = False
 
-        layout.operator("outliner.ap_collection_from_yaml", text="Setup .lo")
+        layout.operator("object.ap_create_lo", text="Set .lo")
 
 
 registry = [AP_PT_asset_tools]
