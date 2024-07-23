@@ -17,8 +17,8 @@
 
 import bpy
 from bpy.types import PropertyGroup
-from bpy.props import StringProperty, EnumProperty
 from bpy.app.handlers import persistent
+from bpy.props import StringProperty, EnumProperty
 
 CONVENTIONS = {
     "char": "C_",
@@ -57,6 +57,12 @@ def get_asset_name(dummy):
         ][0]
 
 
+def update_asset_code(self, context):
+    props = context.scene.APMetadataProperties
+    if props.meta_asset_type != "none":
+        props.meta_asset_code = CONVENTIONS[props.meta_asset_type]
+
+
 class APMetadataProperties(PropertyGroup):
     """Asset Publisher Metadata Properties"""
 
@@ -72,6 +78,17 @@ class APMetadataProperties(PropertyGroup):
             ("set", "Set", "Set"),
             ("vehicle", "Vehicle", "Vehicle"),
             ("none", "Not Available", "Not Available"),
+        ),
+        default="none",
+        update=update_asset_code,
+    )  # type: ignore
+    meta_asset_code: EnumProperty(
+        items=(
+            ("C_", "C_", "Character"),
+            ("P_", "P_", "Prop"),
+            ("S_", "S_", "Set"),
+            ("V_", "V_", "Vehicle"),
+            ("none", "", ""),
         ),
         default="none",
     )  # type: ignore
