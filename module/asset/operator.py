@@ -14,3 +14,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
+from bpy.types import Context, Operator
+from ... import tool as tool
+
+
+class AP_OT_asset_create_lo(Operator):
+    """
+    Operator to create .lo asset from .hi object data
+    """
+
+    bl_idname = "object.ap_create_lo"
+    bl_label = "Create .lo Asset"
+
+    @classmethod
+    def poll(cls, context: Context):
+        return True
+
+    def execute(self, context: Context):
+        tool.Asset.create_lo_asset()
+
+        return {"FINISHED"}
+
+
+registry = [AP_OT_asset_create_lo]
