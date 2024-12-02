@@ -15,11 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 from bpy.types import Context, Operator
+
 from ... import tool as tool
-from yaml import safe_load  # type: ignore
+from ... import wheels
+
+wheels.preload_dependencies()
 
 # import glob
 import os
+
+from yaml import safe_load  # type: ignore
 
 
 class AP_OT_collection_from_yaml(Operator):
@@ -49,7 +54,9 @@ class AP_OT_collection_from_yaml(Operator):
             with open(type_yaml, "r") as stream:
                 data = safe_load(stream)
 
-            asset_data = tool.System.replace_name(data, "Name", props.meta_asset_name)
+            asset_data = tool.System.replace_name(
+                data, "Name", props.meta_asset_name
+            )
 
             tool.System.process_asset_data(asset_data)
 

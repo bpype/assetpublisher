@@ -14,9 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
-
+from ... import wheels
 from . import operator, ui
 
+wheels.preload_dependencies()
 modules = [
     operator,
     ui,
