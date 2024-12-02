@@ -16,9 +16,9 @@
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 
 import bpy
-from bpy.types import PropertyGroup
 from bpy.app.handlers import persistent
-from bpy.props import StringProperty, EnumProperty
+from bpy.props import EnumProperty, StringProperty
+from bpy.types import PropertyGroup
 
 CONVENTIONS = {
     "char": "C_",

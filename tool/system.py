@@ -14,11 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
-import os
-import bpy
 import glob
-from yaml import safe_load  # type: ignore
+import os
+
+import bpy
+
+# from yaml import safe_load  # type: ignore
 from bpy.utils import script_paths
+
 from .. import __package__ as base_package
 
 
@@ -54,7 +57,8 @@ class System:
             scripts_path_to_check.append(scriptpath)
 
         user_resources = next(
-            (path for path in scripts_path_to_check if os.path.exists(path)), None
+            (path for path in scripts_path_to_check if os.path.exists(path)),
+            None,
         )
         if user_resources:
             return os.path.join(user_resources, "data", dirname)
@@ -77,7 +81,9 @@ class System:
             return _layer_collection
         else:
             for l_col in _layer_collection.children:
-                if rez := System.layer_collection(name=name, _layer_collection=l_col):
+                if rez := System.layer_collection(
+                    name=name, _layer_collection=l_col
+                ):
                     return rez
 
     @classmethod
@@ -108,7 +114,9 @@ class System:
             return None
 
         def create_collection(collection_name, parent=None):
-            existing_collection = find_collection_case_insensitive(collection_name)
+            existing_collection = find_collection_case_insensitive(
+                collection_name
+            )
             if existing_collection:
                 existing_collection.name = collection_name
                 existing_collection.color_tag = color
@@ -140,6 +148,8 @@ class System:
         if data:
             obj_copy.data = obj_copy.data.copy()
         if actions and obj_copy.animation_data:
-            obj_copy.animation_data.action = obj_copy.animation_data.action.copy()
+            obj_copy.animation_data.action = (
+                obj_copy.animation_data.action.copy()
+            )
         collection.objects.link(obj_copy)
         return obj_copy

@@ -15,6 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 
+import importlib
+from typing import List
+
+from bpy.utils import register_class, unregister_class
+
+from .module import asset, collection, metadata
+
 bl_info = {
     "name": "Asset Publisher",
     "description": "Asset Pipeline Toolkit for Publishing into Asset Browser",
@@ -26,15 +33,6 @@ bl_info = {
     "wiki_url": "",
     "category": "!Pipeline",
 }
-
-import importlib
-from bpy.utils import register_class, unregister_class
-from typing import List
-from .module import metadata, collection, asset
-from . import dependencies
-
-
-dependencies.preload_modules()
 
 modules = (
     metadata,
@@ -60,7 +58,9 @@ def register_unregister_modules(modules: List, register: bool):
                     register_func(c)
                 except Exception as e:
                     un = "un" if not register else ""
-                    print(f"Warning: Failed to {un}register class: {c.__name__}")
+                    print(
+                        f"Warning: Failed to {un}register class: {c.__name__}"
+                    )
                     print(e)
 
         if hasattr(m, "modules"):
