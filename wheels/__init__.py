@@ -1,89 +1,92 @@
-# Copyright (C) 2024 Aditia A. Pratama | aditia.ap@gmail.com
+# ##### BEGIN GPL LICENSE BLOCK #####
 #
-# This file is part of assetpublisher.
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
 #
-# assetpublisher is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
 #
-# assetpublisher is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-# You should have received a copy of the GNU General Public License
-# along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
+# ##### END GPL LICENSE BLOCK #####
+
+# NOTE: The original author of this file is Sybren Stüvel. This file is copied from the
+# Flamenco project: https://developer.blender.org/diffusion/F/browse/main/addon/flamenco/wheels/__init__.py
+
 """External dependencies loader."""
 
 import contextlib
-import importlib
-from pathlib import Path
-import sys
 import logging
+import sys
+from pathlib import Path
 from types import ModuleType
-from typing import Iterator, Iterable
+from typing import Iterator
 
 _my_dir = Path(__file__).parent
 _log = logging.getLogger(__name__)
 
 
-def load_wheel(module_name: str, submodules: Iterable[str]) -> list[ModuleType]:
-    """Loads modules from a wheel file 'module_name*.whl'.
+def load_wheel(module_name: str, fname_prefix: str) -> ModuleType:
+    """Loads a wheel from 'fname_prefix*.whl', unless the named module can be imported.
 
-    Loads `module_name`, and if submodules are given, loads
-    `module_name.submodule` for each of the submodules. This allows loading all
-    required modules from the same wheel in one session, ensuring that
-    inter-submodule references are correct.
-
-    Returns the loaded modules, so [module, submodule, submodule, ...].
+    This allows us to use system-installed packages before falling back to the shipped wheels.
+    This is useful for development, less so for deployment.
     """
 
-    fname_prefix = _fname_prefix_from_module_name(module_name)
-    wheel = _wheel_filename(fname_prefix)
+    try:
+        module = __import__(module_name)
+    except ImportError as ex:
+        _log.debug(
+            "Unable to import %s directly, will try wheel: %s", module_name, ex
+        )
+    else:
+        _log.debug(
+            "Was able to load %s from %s, no need to load wheel %s",
+            module_name,
+            module.__file__,
+            fname_prefix,
+        )
+        assert isinstance(module, ModuleType)
+        return module
 
-    loaded_modules: list[ModuleType] = []
-    to_load = [module_name] + [f"{module_name}.{submodule}" for submodule in submodules]
+    wheel = _wheel_filename(fname_prefix)
 
     # Load the module from the wheel file. Keep a backup of sys.path so that it
     # can be restored later. This should ensure that future import statements
     # cannot find this wheel file, increasing the separation of dependencies of
     # this add-on from other add-ons.
     with _sys_path_mod_backup(wheel):
-        for modname in to_load:
-            try:
-                module = importlib.import_module(modname)
-            except ImportError as ex:
-                raise ImportError(
-                    "Unable to load %r from %s: %s" % (modname, wheel, ex)
-                ) from None
-            assert isinstance(module, ModuleType)
-            loaded_modules.append(module)
-            _log.info("Loaded %s from %s", modname, module.__file__)
+        try:
+            module = __import__(module_name)
+        except ImportError as ex:
+            raise ImportError(
+                "Unable to load %r from %s: %s" % (module_name, wheel, ex)
+            ) from None
 
-    assert len(loaded_modules) == len(
-        to_load
-    ), f"expecting to load {len(to_load)} modules, but only have {len(loaded_modules)}: {loaded_modules}"
-    return loaded_modules
+    _log.debug("Loaded %s from %s", module_name, module.__file__)
+    assert isinstance(module, ModuleType)
+    return module
 
 
-def load_wheel_global(module_name: str, fname_prefix: str = "") -> ModuleType:
+def load_wheel_global(module_name: str, fname_prefix: str) -> ModuleType:
     """Loads a wheel from 'fname_prefix*.whl', unless the named module can be imported.
 
     This allows us to use system-installed packages before falling back to the shipped wheels.
     This is useful for development, less so for deployment.
-
-    If `fname_prefix` is the empty string, it will use the first package from `module_name`.
-    In other words, `module_name="pkg.subpkg"` will result in `fname_prefix="pkg"`.
     """
 
-    if not fname_prefix:
-        fname_prefix = _fname_prefix_from_module_name(module_name)
-
     try:
-        module = importlib.import_module(module_name)
+        module = __import__(module_name)
     except ImportError as ex:
-        _log.debug("Unable to import %s directly, will try wheel: %s", module_name, ex)
+        _log.debug(
+            "Unable to import %s directly, will try wheel: %s", module_name, ex
+        )
     else:
         _log.debug(
             "Was able to load %s from %s, no need to load wheel %s",
@@ -100,7 +103,7 @@ def load_wheel_global(module_name: str, fname_prefix: str = "") -> ModuleType:
         sys.path.insert(0, wheel_filepath)
 
     try:
-        module = importlib.import_module(module_name)
+        module = __import__(module_name)
     except ImportError as ex:
         raise ImportError(
             "Unable to load %r from %s: %s" % (module_name, wheel, ex)
@@ -112,40 +115,57 @@ def load_wheel_global(module_name: str, fname_prefix: str = "") -> ModuleType:
 
 @contextlib.contextmanager
 def _sys_path_mod_backup(wheel_file: Path) -> Iterator[None]:
-    """Temporarily inserts a wheel onto sys.path.
-
-    When the context exits, it restores sys.path and sys.modules, so that
-    anything that was imported within the context remains unimportable by other
-    modules.
-    """
     old_syspath = sys.path[:]
-    old_sysmod = sys.modules.copy()
 
     try:
         sys.path.insert(0, str(wheel_file))
         yield
     finally:
-        # Restore without assigning a new list instance. That way references
-        # held by other code will stay valid.
+        # Restore without assigning new instances. That way references held by
+        # other code will stay valid.
+
         sys.path[:] = old_syspath
-        sys.modules.clear()
-        sys.modules.update(old_sysmod)
 
 
 def _wheel_filename(fname_prefix: str) -> Path:
-    path_pattern = "%s*.whl" % fname_prefix
+    path_pattern = f"{fname_prefix}*.whl"
     wheels: list[Path] = list(_my_dir.glob(path_pattern))
     if not wheels:
-        raise RuntimeError("Unable to find wheel at %r" % path_pattern)
+        raise RuntimeError(f"Unable to find wheel at {path_pattern!r}")
 
-    # If there are multiple wheels that match, load the last-modified one.
-    # Alphabetical sorting isn't going to cut it since BAT 1.10 was released.
-    def modtime(filepath: Path) -> float:
-        return filepath.stat().st_mtime
+    # Get platform-specific tag based on sys.platform
+    if sys.platform.startswith("win"):  # Windows
+        platform_tag = "win_amd64"
+    elif sys.platform.startswith("linux"):  # Linux
+        platform_tag = "manylinux"
+    else:
+        platform_tag = None  # Allow for universal wheels
 
-    wheels.sort(key=modtime)
-    return wheels[-1]
+    # Filter wheels by platform or 'none' for universal wheels
+    platform_wheels = [
+        wheel
+        for wheel in wheels
+        if platform_tag in wheel.name or "none" in wheel.name
+    ]
+
+    if not platform_wheels:
+        raise RuntimeError(
+            f"No wheels found for platform: {platform_tag or 'universal'}"
+        )
+
+    # Sort by modification time to get the most recent one
+    platform_wheels.sort(key=lambda filepath: filepath.stat().st_mtime)
+
+    return platform_wheels[-1]
 
 
-def _fname_prefix_from_module_name(module_name: str) -> str:
-    return module_name.split(".", 1)[0]
+def preload_dependencies() -> None:
+    """Pre-load the modules from a wheel so that the API can find it."""
+    module = load_wheel_global("yaml", "PyYAML")
+    _log.debug(f"Loaded wheel: {module.__name__}")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    wheel = _wheel_filename("PyYAML")
+    print(f"Wheel: {wheel}")
