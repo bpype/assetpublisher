@@ -15,11 +15,79 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 import os
+
 import bpy
+
+from .. import wheels
 from . import system
+
+wheels.preload_dependencies()
+
+from yaml import safe_load
 
 
 class Asset:
+
+    @classmethod
+    def get_asset_data(cls):
+        props = bpy.context.scene.APMetadataProperties
+        collections_path = system.System.get_addon_data("collections")
+        collections_yaml = system.System.get_files(collections_path, "yml")
+
+        if props.meta_asset_type != "none":
+            type_yaml = [
+                y
+                for y in collections_yaml
+                if props.meta_asset_type in os.path.basename(y)
+            ][0]
+
+            with open(type_yaml, "r") as stream:
+                data = safe_load(stream)
+
+            asset_data = system.System.replace_name(
+                data, "Name", props.meta_asset_name
+            )
+
+            return asset_data
+
+    @classmethod
+    def get_layer_collection_hierarchy(
+        cls,
+        lc: bpy.types.LayerCollection,
+    ):
+        children_list = []
+        for child in lc.children:
+            if len(child.children) > 0:
+                children_list.append(
+                    {child.name: cls.get_layer_collection_hierarchy(child)}
+                )
+            else:
+                children_list.append(child.name)
+        return children_list
+
+    @classmethod
+    def has_collection_structure(cls) -> bool:
+        def is_subset(A, B):
+            if isinstance(A, dict):
+                return isinstance(B, dict) and all(
+                    key in B and is_subset(value, B[key])
+                    for key, value in A.items()
+                )
+            elif isinstance(A, list):
+                return isinstance(B, list) and all(
+                    any(is_subset(a, b) for b in B) for a in A
+                )
+            else:
+                return A == B
+
+        view_layer = bpy.context.view_layer
+        layer_collection = view_layer.layer_collection
+
+        current_hierarchy = cls.get_layer_collection_hierarchy(
+            layer_collection
+        )
+        asset_data = cls.get_asset_data()
+        return is_subset(asset_data, current_hierarchy)
 
     @classmethod
     def create_lo_asset(cls):

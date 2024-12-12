@@ -29,28 +29,14 @@ class AP_OT_collection_from_yaml(Operator):
 
     @classmethod
     def poll(cls, context):
-        return True
+        return (
+            context.scene.APMetadataProperties.meta_asset_type != "none"
+            and not tool.Asset.has_collection_structure()
+        )
 
     def execute(self, context: Context):
-        props = context.scene.APMetadataProperties
-        collections_path = tool.System.get_addon_data("collections")
-        collections_yaml = tool.System.get_files(collections_path, "yml")
-
-        if props.meta_asset_type != "none":
-            type_yaml = [
-                y
-                for y in collections_yaml
-                if props.meta_asset_type in os.path.basename(y)
-            ][0]
-
-            with open(type_yaml, "r") as stream:
-                data = safe_load(stream)
-
-            asset_data = tool.System.replace_name(
-                data, "Name", props.meta_asset_name
-            )
-
-            tool.System.process_asset_data(asset_data)
+        asset_data = tool.Asset.get_asset_data()
+        tool.System.process_asset_data(asset_data)
 
         return {"FINISHED"}
 
