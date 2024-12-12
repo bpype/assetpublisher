@@ -16,15 +16,7 @@
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 from bpy.types import Context, Operator
 
-from ... import tool as tool
-from ... import wheels
-
-wheels.preload_dependencies()
-
-# import glob
-import os
-
-from yaml import safe_load  # type: ignore
+from ... import tool
 
 
 class AP_OT_collection_from_yaml(Operator):

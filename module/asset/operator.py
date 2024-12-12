@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 from bpy.types import Context, Operator
-from ... import tool as tool
+
+from ... import tool
 
 
 class AP_OT_asset_create_lo(Operator):
