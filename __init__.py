@@ -20,7 +20,7 @@ from typing import List
 
 from bpy.utils import register_class, unregister_class
 
-from .module import asset, collection, metadata
+from . import module
 
 bl_info = {
     "name": "Asset Publisher",
@@ -35,9 +35,10 @@ bl_info = {
 }
 
 modules = (
-    metadata,
-    collection,
-    asset,
+    module,
+    module.metadata,
+    module.collection,
+    module.asset,
 )
 
 
