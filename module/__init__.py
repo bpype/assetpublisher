@@ -14,3 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
+
+from . import asset, collection, metadata
+
+registry = [
+    metadata.ui.AP_PT_metadata_tools,
+    collection.ui.AP_PT_collection_tools,
+    asset.ui.AP_PT_asset_tools,
+]
