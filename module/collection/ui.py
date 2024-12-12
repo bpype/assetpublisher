@@ -30,8 +30,7 @@ class AP_PT_collection_tools(ui.AP_PT_panel, Panel):
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-
-        layout.operator("outliner.ap_collection_from_yaml", text="Collection Setup")
-
-
-registry = [AP_PT_collection_tools]
+        if not tool.Asset.has_collection_structure():
+            layout.operator(
+                "outliner.ap_collection_from_yaml", text="Collection Setup"
+            )
