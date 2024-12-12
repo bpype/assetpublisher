@@ -15,10 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 - S_Name.Assets:
-  - S_Name_MDL.hi
-  - S_Name_MDL.lo
-  - S_Name_MDL.glass
-  - S_Name_MDL.ground
-  - S_Name_RIG:
-    - S_Name_RIG_helpers
-- S_Name.Anm
+    - S_Name_MDL.main
+    - S_Name_MDL.glass
+    - S_Name_MDL.ground
+    - S_Name_SDR
+    - S_Name_LGT
+    - S_Name_RIG:
+        - S_Name_RIG_helpers
+- S_Name.Anm:
+    - S_Name_MDL.scatter

@@ -17,18 +17,10 @@
 
 from bpy.types import Panel
 
-
-class AP_PT_asset_panel:
-    """
-    Panel in 3D Viewport Sidebar
-    """
-
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "AP"
+from .. import ui
 
 
-class AP_PT_asset_tools(AP_PT_asset_panel, Panel):
+class AP_PT_asset_tools(ui.AP_PT_panel, Panel):
     bl_label = "Asset"
     bl_parent_id = "AP_PT_metadata_tools"
     bl_options = {"HIDE_HEADER"}
@@ -39,6 +31,3 @@ class AP_PT_asset_tools(AP_PT_asset_panel, Panel):
         layout.use_property_decorate = False
 
         layout.operator("object.ap_create_lo", text="Set .lo")
-
-
-registry = [AP_PT_asset_tools]
