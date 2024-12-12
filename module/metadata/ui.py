@@ -17,19 +17,11 @@
 
 from bpy.types import Panel
 
-
-class AP_PT_metadata_panel:
-    """
-    Panel in 3D Viewport Sidebar
-    """
-
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "AP"
+from .. import ui
 
 
-class AP_PT_metadata_tools(AP_PT_metadata_panel, Panel):
-    bl_label = "Asset Metadata"
+class AP_PT_metadata_tools(ui.AP_PT_panel, Panel):
+    bl_label = "Asset Publisher"
 
     def draw(self, context):
         layout = self.layout
@@ -41,8 +33,3 @@ class AP_PT_metadata_tools(AP_PT_metadata_panel, Panel):
         col = layout.column(align=True)
         col.prop(props, "meta_asset_name", text="Name:", icon="ASSET_MANAGER")
         col.prop(props, "meta_asset_type", text="Type:")
-
-
-registry = [
-    AP_PT_metadata_tools,
-]

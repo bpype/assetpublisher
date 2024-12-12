@@ -17,18 +17,11 @@
 
 from bpy.types import Panel
 
-
-class AP_PT_collection_panel:
-    """
-    Panel in 3D Viewport Sidebar
-    """
-
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "AP"
+from ... import tool
+from .. import ui
 
 
-class AP_PT_collection_tools(AP_PT_collection_panel, Panel):
+class AP_PT_collection_tools(ui.AP_PT_panel, Panel):
     bl_label = "Collection"
     bl_parent_id = "AP_PT_metadata_tools"
     bl_options = {"HIDE_HEADER"}
