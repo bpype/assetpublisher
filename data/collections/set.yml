@@ -19,8 +19,8 @@
     - S_Name_MDL.glass
     - S_Name_MDL.ground
     - S_Name_SDR
+    - S_Name_RIG_helpers
     - S_Name_LGT
     - S_Name_RIG:
-        - S_Name_RIG_helpers
 - S_Name.Anm:
     - S_Name_MDL.scatter

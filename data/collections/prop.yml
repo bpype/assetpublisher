@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 - P_Name.Assets:
-  - P_Name_MDL.hi
-  - P_Name_MDL.lo
-  - P_Name_MDL.glass
-  - P_Name_RIG:
-    - P_Name_RIG_helpers
+    - P_Name_MDL.hi:
+        - P_Name_RIG_helpers
+    - P_Name_MDL.lo
+    - P_Name_MDL.glass
+    - P_Name_RIG:
 - P_Name.Anm
