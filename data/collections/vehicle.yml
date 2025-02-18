@@ -14,11 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
-- V_Name.Assets:
+- V_Name.Asset:
     - V_Name_MDL.hi:
         - V_Name_RIG_helpers
     - V_Name_MDL.lo
     - V_Name_MDL.glass
     - V_Name_RIG
 - V_Name.Anm
-

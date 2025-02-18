@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
-- S_Name.Assets:
+- S_Name.Asset:
     - S_Name_MDL.main
     - S_Name_MDL.glass
     - S_Name_MDL.ground
