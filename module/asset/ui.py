@@ -21,13 +21,22 @@ from .. import ui
 
 
 class AP_PT_asset_tools(ui.AP_PT_panel, Panel):
-    bl_label = "Asset"
+    bl_label = "Asset Fixing"
     bl_parent_id = "AP_PT_metadata_tools"
-    bl_options = {"HIDE_HEADER"}
+    # bl_options = {"HIDE_HEADER"}
 
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-
-        layout.operator("object.ap_create_lo", text="Set .lo")
+        props = context.scene.APMetadataProperties
+        col = layout.column(align=False)
+        box = col.box()
+        row = box.row(align=False)
+        row.label(text="Force GN Subdiv:")
+        row.operator("object.ap_use_gn_subdiv", text="Apply")
+        if not props.meta_asset_type == "set":
+            box = col.box()
+            row = box.row(align=False)
+            row.label(text=".lo not set:")
+            row.operator("object.ap_create_lo", text="Fix")
