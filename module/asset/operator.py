@@ -17,7 +17,6 @@
 import bpy
 
 from ...tool import Asset as asset
-from ...tool import System as ap_system
 
 
 class AP_OT_use_gn_subdiv(bpy.types.Operator):
