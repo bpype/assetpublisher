@@ -16,7 +16,8 @@
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 from bpy.types import Context, Operator
 
-from ... import tool
+from ...tool import Asset as asset
+from ...tool import System as ap_system
 
 
 class AP_OT_collection_from_yaml(Operator):
@@ -29,14 +30,11 @@ class AP_OT_collection_from_yaml(Operator):
 
     @classmethod
     def poll(cls, context):
-        return (
-            context.scene.APMetadataProperties.meta_asset_type != "none"
-            and not tool.Asset.has_collection_structure()
-        )
+        return context.scene.APMetadataProperties.meta_asset_type != "none" and not asset.has_collection_structure()
 
     def execute(self, context: Context):
-        asset_data = tool.Asset.get_asset_data()
-        tool.System.process_asset_data(asset_data)
+        asset_data = asset.get_asset_data()
+        ap_system.process_asset_data(asset_data)
 
         return {"FINISHED"}
 
