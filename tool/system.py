@@ -19,9 +19,6 @@ import os
 
 import bpy
 
-# from yaml import safe_load  # type: ignore
-from bpy.utils import script_paths
-
 from .. import __package__ as base_package
 
 
@@ -52,7 +49,7 @@ class System:
         """
         scripts_path_to_check = []
 
-        for path in script_paths():
+        for path in bpy.utils.script_paths():
             scriptpath = os.path.join(path, "addons", base_package)
             scripts_path_to_check.append(scriptpath)
 
@@ -81,9 +78,7 @@ class System:
             return _layer_collection
         else:
             for l_col in _layer_collection.children:
-                if rez := System.layer_collection(
-                    name=name, _layer_collection=l_col
-                ):
+                if rez := System.layer_collection(name=name, _layer_collection=l_col):
                     return rez
 
     @classmethod
@@ -92,9 +87,7 @@ class System:
             return [cls.replace_name(item, old_name, name) for item in data]
         elif isinstance(data, dict):
             return {
-                cls.replace_name(key, old_name, name): cls.replace_name(
-                    value, old_name, name
-                )
+                cls.replace_name(key, old_name, name): cls.replace_name(value, old_name, name)
                 for key, value in data.items()
             }
         elif isinstance(data, str):
@@ -114,9 +107,7 @@ class System:
             return None
 
         def create_collection(collection_name, parent=None):
-            existing_collection = find_collection_case_insensitive(
-                collection_name
-            )
+            existing_collection = find_collection_case_insensitive(collection_name)
             if existing_collection:
                 existing_collection.name = collection_name
                 existing_collection.color_tag = color
@@ -148,8 +139,6 @@ class System:
         if data:
             obj_copy.data = obj_copy.data.copy()
         if actions and obj_copy.animation_data:
-            obj_copy.animation_data.action = (
-                obj_copy.animation_data.action.copy()
-            )
+            obj_copy.animation_data.action = obj_copy.animation_data.action.copy()
         collection.objects.link(obj_copy)
         return obj_copy
