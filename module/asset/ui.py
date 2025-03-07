@@ -15,28 +15,52 @@
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 
-from bpy.types import Panel
+import bpy
 
+from ...tool import Asset as asset
+from ...tool import CustomLayout as custom_layout
 from .. import ui
 
 
-class AP_PT_asset_tools(ui.AP_PT_panel, Panel):
+class AP_PT_asset_tools(ui.AP_PT_panel, bpy.types.Panel):
     bl_label = "Asset Fixing"
     bl_parent_id = "AP_PT_metadata_tools"
-    # bl_options = {"HIDE_HEADER"}
+    bl_options = {"HIDE_HEADER"}
 
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
         props = context.scene.APMetadataProperties
-        col = layout.column(align=False)
-        box = col.box()
-        row = box.row(align=False)
-        row.label(text="Force GN Subdiv:")
-        row.operator("object.ap_use_gn_subdiv", text="Apply")
+        col = layout.column_flow(columns=1)
+        panel_width = context.region.width
+        if len(asset.get_objects_with_subdiv()) > 0 and props.meta_asset_type in {"set", "prop"}:
+            message = f"No GN_SubD in {len(asset.get_objects_with_subdiv())} objects"
+            box = custom_layout.auto_row(col, panel_width=panel_width, width_treshold=(len(message) * 10))
+            box.alert = True
+            box.label(text=message)
+            box.operator("object.ap_use_gn_subdiv", text="Fix")
         if not props.meta_asset_type == "set":
             box = col.box()
             row = box.row(align=False)
             row.label(text=".lo not set:")
             row.operator("object.ap_create_lo", text="Fix")
+
+
+def add_gn_modifier(self, context: bpy.types.Context):
+    props = context.scene.APMetadataProperties
+    if props.meta_asset_type in {"set", "prop"}:
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        box = custom_layout.auto_row(layout, panel_width=200, width_treshold=280, max_column=2, align=False)
+        box.label(text="Add Modifier:")
+        box.operator("object.ap_set_gn_subdiv", text="GN_SubD", icon="MOD_SUBSURF")
+
+
+def register():
+    bpy.types.DATA_PT_modifiers.prepend(add_gn_modifier)
+
+
+def unregister():
+    bpy.types.DATA_PT_modifiers.remove(add_gn_modifier)
