@@ -19,7 +19,27 @@ import bpy
 from ...tool import Asset as asset
 
 
+class AP_OT_set_gn_subdiv(bpy.types.Operator):
+    """Operator to set GN_SubD on active object"""
+
+    bl_idname = "object.ap_set_gn_subdiv"
+    bl_label = "Set GN Subdiv"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return (obj := context.active_object) and obj.type == "MESH"
+
+    def execute(self, context: bpy.types.Context):
+        obj = context.active_object
+        asset.set_gn_subdiv(obj)
+        self.report({"INFO"}, f"Set GN_SubD on {obj.name}")
+        return {"FINISHED"}
+
+
 class AP_OT_use_gn_subdiv(bpy.types.Operator):
+    """Operator to set GN_SubD on all objects with subdiv"""
+
     bl_idname = "object.ap_use_gn_subdiv"
     bl_label = "Use GN Subdiv"
     bl_options = {"REGISTER", "UNDO"}
@@ -30,13 +50,10 @@ class AP_OT_use_gn_subdiv(bpy.types.Operator):
 
     def execute(self, context: bpy.types.Context):
         objs_with_subdiv = asset.get_objects_with_subdiv()
-        if (existing_gnsubdiv := bpy.data.node_groups.get("GN_SubD")) and not any(
-            "Level" in inp.name for inp in existing_gnsubdiv.inputs
-        ):
-            bpy.data.node_groups.remove(existing_gnsubdiv)
+        asset.clean_existing_gn_subdiv()
         for obj in objs_with_subdiv:
             asset.set_gn_subdiv(obj)
-        self.report({"INFO"}, f"{len(objs_with_subdiv)} objects with subdiv")
+        self.report({"INFO"}, f"Fixed {len(objs_with_subdiv)} objects")
         return {"FINISHED"}
 
 
@@ -56,4 +73,4 @@ class AP_OT_asset_create_lo(bpy.types.Operator):
         return {"FINISHED"}
 
 
-registry = [AP_OT_asset_create_lo, AP_OT_use_gn_subdiv]
+registry = [AP_OT_asset_create_lo, AP_OT_use_gn_subdiv, AP_OT_set_gn_subdiv]
