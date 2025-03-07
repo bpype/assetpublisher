@@ -111,7 +111,12 @@ class Asset:
     def get_objects_with_subdiv(cls) -> list:
         objs_with_subdiv = []
         for obj in bpy.data.objects:
-            if (mods := obj.modifiers) and any(m.type == "SUBSURF" for m in mods):
+            if (
+                (mods := obj.modifiers)
+                and any(m.type in {"SUBSURF", "NODES"} and m.show_render for m in mods)
+                # and not any(m.type == "NODES" and m.node_group == bpy.data.node_groups.get("GN_SubD") for m in mods)
+                and not any("GN_SubD" in m.name for m in mods)
+            ):
                 objs_with_subdiv.append(obj)
         return objs_with_subdiv
 
@@ -134,9 +139,20 @@ class Asset:
             gn_blend = [b for b in ap_system.get_files(mod_path, "blend") if "geonodes" in bpy.path.basename(b)][0]
             gn_subdiv = cls.append_nodegroups(gn_blend, "GN_SubD")
             subsurf_mod = next((mod for mod in obj.modifiers if mod.type == "SUBSURF"), None)
-            gn_mod = obj.modifiers.new(gn_subdiv.name, "NODES")
-            gn_mod.node_group = gn_subdiv
-            obj.modifiers.move(obj.modifiers.find("GN_SubD"), len(obj.modifiers) - 1)
 
             if subsurf_mod:
                 subsurf_mod.show_render = False
+            else:
+                subsurf_mod = obj.modifiers.new("SubD", "SUBSURF")
+                subsurf_mod.show_render = False
+
+            if not (gn_mod := obj.modifiers.get("GN_SubD")):
+                gn_mod = obj.modifiers.new(gn_subdiv.name, "NODES")
+            gn_mod.node_group = gn_subdiv
+            obj.modifiers.move(obj.modifiers.find("GN_SubD"), len(obj.modifiers) - 1)
+
+    @classmethod
+    def clean_existing_gn_subdiv(cls):
+        for node_group in bpy.data.node_groups:
+            if node_group.name.startswith("GN_SubD") and not any("Level" in inp.name for inp in node_group.inputs):
+                bpy.data.node_groups.remove(node_group)
