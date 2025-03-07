@@ -14,5 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
-from .system import System
 from .asset import Asset
+from .layout import CustomLayout
+from .system import System
