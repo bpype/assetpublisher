@@ -34,7 +34,7 @@ class AP_PT_asset_tools(ui.AP_PT_panel, bpy.types.Panel):
         props = context.scene.APMetadataProperties
         col = layout.column_flow(columns=1)
         panel_width = context.region.width
-        if len(asset.get_objects_with_subdiv()) > 0 and props.meta_asset_type in {"set", "prop"}:
+        if len(asset.get_objects_with_subdiv()) > 0:  # and props.meta_asset_type in {"set", "prop"}:
             message = f"No GN_SubD in {len(asset.get_objects_with_subdiv())} objects"
             box = custom_layout.auto_row(col, panel_width=panel_width, width_treshold=(len(message) * 10))
             box.alert = True
