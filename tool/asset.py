@@ -113,9 +113,14 @@ class Asset:
         for obj in bpy.data.objects:
             if (
                 (mods := obj.modifiers)
-                and any(m.type in {"SUBSURF", "NODES"} and m.show_render for m in mods)
-                # and not any(m.type == "NODES" and m.node_group == bpy.data.node_groups.get("GN_SubD") for m in mods)
-                and not any("GN_SubD" in m.name for m in mods)
+                and any(m.type == "SUBSURF" and m.show_render for m in mods)
+                or any(
+                    m.type == "NODES"
+                    and hasattr(m.node_group, "name")
+                    and m.node_group.name.startswith("GN_SubD")
+                    and not any("Level" in inp.name for inp in m.node_group.inputs)
+                    for m in mods
+                )
             ):
                 objs_with_subdiv.append(obj)
         return objs_with_subdiv
@@ -156,3 +161,7 @@ class Asset:
         for node_group in bpy.data.node_groups:
             if node_group.name.startswith("GN_SubD") and not any("Level" in inp.name for inp in node_group.inputs):
                 bpy.data.node_groups.remove(node_group)
+        for obj in bpy.data.objects:
+            if (mods := obj.modifiers) and any(m.type == "NODES" and not hasattr(m.node_group, "name") for m in mods):
+                for m in mods:
+                    obj.modifiers.remove(m)
