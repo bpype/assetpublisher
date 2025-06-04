@@ -33,3 +33,8 @@ class AP_PT_metadata_tools(ui.AP_PT_panel, Panel):
         col = layout.column(align=True)
         col.prop(props, "meta_asset_name", text="Name:", icon="ASSET_MANAGER")
         col.prop(props, "meta_asset_type", text="Type:")
+        col_locked = col.column(align=True)
+        col_locked.enabled = False
+        col_locked.prop(props, "meta_asset_status", text="Status:")
+        if props.meta_asset_status == "working":
+            col_locked.prop(props, "meta_asset_task", text="Task:")

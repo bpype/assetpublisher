@@ -16,14 +16,10 @@
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 
 from bpy.app.handlers import load_post
-from bpy.types import Scene, PropertyGroup
 from bpy.props import PointerProperty
+from bpy.types import PropertyGroup, Scene
 
-from . import (
-    prop,
-    operator,
-    ui,
-)
+from . import operator, prop, ui
 
 modules = [
     prop,
@@ -35,6 +31,8 @@ modules = [
 def register():
     Scene.APMetadataProperties = PointerProperty(type=prop.APMetadataProperties)
     load_post.append(prop.get_asset_name)
+    load_post.append(prop.get_asset_status)
+    load_post.append(prop.get_asset_task)
 
 
 def unregister():

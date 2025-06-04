@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 
+from pathlib import Path
+
 import bpy
 from bpy.app.handlers import persistent
 from bpy.props import EnumProperty, StringProperty
@@ -29,14 +31,38 @@ CONVENTIONS = {
 
 
 @persistent
+def get_asset_task(dummy):
+    props = bpy.context.scene.APMetadataProperties
+    file_path = Path(bpy.data.filepath)
+    if props.meta_asset_status == "working":
+        if "_RIG" in file_path.name:
+            props.meta_asset_task = "rig"
+        elif "_SHD" in file_path.name:
+            props.meta_asset_task = "shader"
+        elif "_MDL" in file_path.name:
+            props.meta_asset_task = "model"
+        else:
+            props.meta_asset_task = "none"
+
+
+@persistent
+def get_asset_status(dummy):
+    props = bpy.context.scene.APMetadataProperties
+    file_path = Path(bpy.data.filepath)
+    if "02_Publish" in file_path.parents[0].parts:
+        props.meta_asset_status = "published"
+    elif "01_Working" in file_path.parents[0].parts:
+        props.meta_asset_status = "working"
+    else:
+        props.meta_asset_status = "none"
+
+
+@persistent
 def get_asset_name(dummy):
     global CONVENTIONS
     asset_coll = set()
     colls = [
-        col
-        for assettype, assetname in CONVENTIONS.items()
-        for col in bpy.data.collections
-        if assetname in col.name
+        col for assettype, assetname in CONVENTIONS.items() for col in bpy.data.collections if assetname in col.name
     ]
     if colls:
         asset_coll.add(colls[0])
@@ -45,15 +71,11 @@ def get_asset_name(dummy):
         scene = bpy.context.scene
         props = scene.APMetadataProperties
         asset_clean_name = (
-            list_asset_coll[0].name.split(".")[0]
-            if "." in list_asset_coll[0].name
-            else list_asset_coll[0].name
+            list_asset_coll[0].name.split(".")[0] if "." in list_asset_coll[0].name else list_asset_coll[0].name
         )
         props.meta_asset_name = asset_clean_name[2:]
         props.meta_asset_type = [
-            assettype
-            for assettype, assetname in CONVENTIONS.items()
-            if asset_clean_name[:2] == assetname
+            assettype for assettype, assetname in CONVENTIONS.items() if asset_clean_name[:2] == assetname
         ][0]
 
 
@@ -92,6 +114,24 @@ class APMetadataProperties(PropertyGroup):
         ),
         default="none",
     )  # type: ignore
+    meta_asset_status: EnumProperty(
+        items=(
+            ("working", "Working", "Working"),
+            ("published", "Published", "Published"),
+            ("none", "Not Available", "Not Available"),
+        ),
+        default="none",
+    )
+
+    meta_asset_task: EnumProperty(
+        items=(
+            ("none", "Not Available", "Not Available"),
+            ("rig", "Rig", "Rig"),
+            ("shader", "Shader", "Shader"),
+            ("model", "Model", "Model"),
+        ),
+        default="none",
+    )
 
 
 registry = [APMetadataProperties]
