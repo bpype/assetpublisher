@@ -19,6 +19,23 @@ import bpy
 
 class CustomLayout:
     @classmethod
+    def asset_check_row(
+        cls,
+        layout: bpy.types.UILayout,
+        message: str,
+        operator: str,
+        alert: bool = False,
+    ):
+        row = layout.row(align=False)
+        split = row.split(factor=0.7)
+        subsplit = split.split(factor=0.07)
+        subsplit.label(text="", icon="DOT")
+        subsplit.label(text=message)
+        split.operator(operator, text="Fix", icon="SHADERFX")
+        if alert:
+            row.alert = True
+
+    @classmethod
     def auto_row(
         cls,
         layout: bpy.types.UILayout,
