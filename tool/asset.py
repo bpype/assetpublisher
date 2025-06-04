@@ -110,8 +110,7 @@ class Asset:
         asset_name = f"{code}{name}_MDL.hi"
         hi_collection = bpy.data.collections.get(asset_name)
         hi_objects = [o for o in hi_collection.objects if o.type == "MESH"]
-        transparent_shader = bpy.data.materials.get("SHD_Transparent")
-        if not transparent_shader:
+        if not bpy.data.materials.get("SHD_Transparent"):
             materials_path = ap_system.get_addon_data("materials")
             asset_path = os.path.join(materials_path, "shader.blend")
             with bpy.data.libraries.load(asset_path, link=False) as (
@@ -121,16 +120,20 @@ class Asset:
                 for mat in data_from.materials:
                     if mat == "SHD_Transparent":
                         data_to.materials.append(mat)
-            transparent_shader = bpy.data.materials.get("SHD_Transparent")
+        transparent_shader = bpy.data.materials.get("SHD_Transparent")
 
         lo_collection = bpy.data.collections.get(f"{code}{name}_MDL.lo")
-        if not lo_collection.objects:
-            for obj in hi_objects:
-                lo_obj = ap_system.duplicate(obj, data=False, actions=False, collection=lo_collection)
-                if not lo_obj.name.endswith(".lo"):
-                    lo_obj.name = f"{lo_obj.name}.lo"
+        if lo_collection.objects:
+            for obj in lo_collection.objects:
+                bpy.data.objects.remove(obj)
+        # if not lo_collection.objects:
+        for obj in hi_objects:
+            lo_obj = ap_system.duplicate(obj, data=False, actions=False, collection=lo_collection)
+            if not lo_obj.name.endswith(".lo"):
+                lo_obj.name = f"{lo_obj.name}.lo"
 
-                for slot in lo_obj.material_slots:
+            if mat_slots := lo_obj.material_slots:
+                for slot in mat_slots:
                     slot.link = "OBJECT"
                     slot.material = transparent_shader
 
