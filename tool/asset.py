@@ -76,6 +76,33 @@ class Asset:
         return is_subset(asset_data, current_hierarchy)
 
     @classmethod
+    def is_lo_ready(cls) -> bool:
+        props = bpy.context.scene.APMetadataProperties
+        name = props.meta_asset_name
+        code = props.meta_asset_code
+        asset_name = f"{code}{name}_MDL.lo"
+        hi_asset_name = f"{code}{name}_MDL.hi"
+        lo_collection = bpy.data.collections.get(asset_name)
+        hi_collection = bpy.data.collections.get(hi_asset_name)
+        if not lo_collection.objects:
+            print(f"{lo_collection.name} has no objects")
+            return False
+        if len(lo_collection.objects) != len(hi_collection.objects):
+            return False
+        for obj in lo_collection.objects:
+            if not obj.name.endswith(".lo"):
+                print(f"{obj.name} is not a LOD")
+                return False
+            if not (mat := obj.active_material):
+                return False
+            if mat.name != "SHD_Transparent":
+                return False
+            if mat_slot := obj.material_slots.get("SHD_Transparent"):
+                if mat_slot.link != "OBJECT":
+                    return False
+        return True
+
+    @classmethod
     def create_lo_asset(cls):
         props = bpy.context.scene.APMetadataProperties
         name = props.meta_asset_name
