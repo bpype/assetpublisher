@@ -28,12 +28,11 @@ class CustomLayout:
     ):
         row = layout.row(align=False)
         split = row.split(factor=0.7)
+        split.alert = alert
         subsplit = split.split(factor=0.07)
         subsplit.label(text="", icon="DOT")
         subsplit.label(text=message)
         split.operator(operator, text="Fix", icon="SHADERFX")
-        if alert:
-            row.alert = True
 
     @classmethod
     def auto_row(
