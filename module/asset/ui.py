@@ -33,18 +33,16 @@ class AP_PT_asset_tools(ui.AP_PT_panel, bpy.types.Panel):
         layout.use_property_decorate = False
         props = context.scene.APMetadataProperties
         col = layout.column_flow(columns=1)
+
+        col.label(text="Asset Check:", icon="BORDERMOVE")
         panel_width = context.region.width
+        box = custom_layout.auto_row(col, panel_width=panel_width, width_treshold=150)
+        col = box.column(align=False)
         if len(asset.get_objects_with_subdiv()) > 0:  # and props.meta_asset_type in {"set", "prop"}:
-            message = f"No GN_SubD in {len(asset.get_objects_with_subdiv())} objects"
-            box = custom_layout.auto_row(col, panel_width=panel_width, width_treshold=(len(message) * 10))
-            box.alert = True
-            box.label(text=message)
-            box.operator("object.ap_use_gn_subdiv", text="Fix")
-        if not props.meta_asset_type == "set":
-            box = col.box()
-            row = box.row(align=False)
-            row.label(text=".lo not set:")
-            row.operator("object.ap_create_lo", text="Fix")
+            message = f"Subd in {len(asset.get_objects_with_subdiv())} objects"
+            custom_layout.asset_check_row(col, message, "object.ap_use_gn_subdiv", alert=True)
+        if not props.meta_asset_type == "set" and not asset.is_lo_ready():
+            custom_layout.asset_check_row(col, "LOD has issues", "object.ap_create_lo", alert=True)
 
 
 def add_gn_modifier(self, context: bpy.types.Context):
