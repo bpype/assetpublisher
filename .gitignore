@@ -163,3 +163,4 @@ cython_debug/
 
 # Blender files
 *.blend1
+profile.json
