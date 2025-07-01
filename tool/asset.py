@@ -195,3 +195,7 @@ class Asset:
             if (mods := obj.modifiers) and any(m.type == "NODES" and not hasattr(m.node_group, "name") for m in mods):
                 for m in mods:
                     obj.modifiers.remove(m)
+
+
+    
+
