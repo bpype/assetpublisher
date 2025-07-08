@@ -15,6 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
 
-from . import ui, prop, operator
+import bpy
+
+from . import operator, prop, ui
 
 modules = [prop, operator, ui]
+
+
+# TODO: enable this when working files opener functionality is ready
+#
+# def register():
+#     bpy.app.handlers.depsgraph_update_post.append(prop.asset_locked)
+#
+#
+# def unregister():
+#     bpy.app.handlers.depsgraph_update_post.remove(prop.asset_locked)
