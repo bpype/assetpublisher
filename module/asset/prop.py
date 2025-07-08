@@ -14,3 +14,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with assetpublisher.  If not, see <https://www.gnu.org/licenses/>.
+import bpy
+from bpy.app.handlers import persistent
+
+
+@persistent
+def asset_locked(scene):
+    props = bpy.context.scene.APMetadataProperties
+    if props.meta_asset_status == "published":
+        try:
+            bpy.ops.object.ap_protected_publish("INVOKE_DEFAULT")
+        except Exception as e:
+            print(f"Error: {e}")
