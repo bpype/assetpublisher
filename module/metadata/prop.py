@@ -48,13 +48,14 @@ def get_asset_task(dummy):
 @persistent
 def get_asset_status(dummy):
     props = bpy.context.scene.APMetadataProperties
-    file_path = Path(bpy.data.filepath)
-    if "02_Publish" in file_path.parents[0].parts:
-        props.meta_asset_status = "published"
-    elif "01_Working" in file_path.parents[0].parts:
-        props.meta_asset_status = "working"
-    else:
-        props.meta_asset_status = "none"
+    if file_path := Path(bpy.data.filepath):
+        if path_list := file_path.parents:
+            if "02_Publish" in path_list[0].parts:
+                props.meta_asset_status = "published"
+            elif "01_Working" in path_list[0].parts:
+                props.meta_asset_status = "working"
+            else:
+                props.meta_asset_status = "none"
 
 
 @persistent
