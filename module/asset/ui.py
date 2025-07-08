@@ -38,6 +38,8 @@ class AP_PT_asset_tools(ui.AP_PT_panel, bpy.types.Panel):
         panel_width = context.region.width
         box = custom_layout.auto_row(col, panel_width=panel_width, width_treshold=150)
         col = box.column(align=False)
+        if not asset.has_collection_structure():
+            custom_layout.asset_check_row(col, "Collection setup", "outliner.ap_collection_from_yaml", alert=True)
         if len(asset.get_objects_with_subdiv()) > 0:  # and props.meta_asset_type in {"set", "prop"}:
             message = f"Subd in {len(asset.get_objects_with_subdiv())} objects"
             custom_layout.asset_check_row(col, message, "object.ap_use_gn_subdiv", alert=True)
