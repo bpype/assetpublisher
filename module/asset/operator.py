@@ -19,6 +19,54 @@ import bpy
 from ...tool import Asset as asset
 
 
+class AP_OT_asset_working_file(bpy.types.Operator):
+    """Operator to open working file"""
+
+    bl_idname = "object.ap_working_file"
+    bl_label = "Open Working File"
+    bl_options = {"REGISTER"}
+
+    asset_name: bpy.props.StringProperty(name="Asset Name")
+
+    def execute(self, context: bpy.types.Context):
+        self.report({"INFO"}, f"Opening {self.asset_name}")
+        return {"FINISHED"}
+
+
+class OBJECT_OT_ap_protected_publish(bpy.types.Operator):
+    """Popup to warn user that publishing is protected"""
+
+    bl_idname = "object.ap_protected_publish"
+    bl_label = "Publish Protected"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        self.report({"ERROR"}, "Published assets cannot be modified")
+        return {"FINISHED"}
+
+    def invoke(self, context, event):
+        wm = context.window_manager
+        return wm.invoke_popup(self, width=260)
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.APMetadataProperties
+        layout.alert = False
+        messages = [
+            "Sorry, this asset has been published",
+            # "and cannot be modified.",
+            "Please select working file below to continue.",
+        ]
+        col = layout.column(align=True)
+        for i, msg in enumerate(messages):
+            col.label(text=msg, icon="ERROR" if i == 0 else "BLANK1")
+        col.separator()
+        row = col.row(align=False)
+        row.label(text="", icon="BLANK1")
+        row.operator("script.reload", text=f"{props.meta_asset_name} Rig", icon="ARMATURE_DATA")
+        row.operator("script.reload", text=f"{props.meta_asset_name} Shader", icon="MATERIAL")
+
+
 class AP_OT_set_gn_subdiv(bpy.types.Operator):
     """Operator to set GN_SubD on active object"""
 
@@ -73,4 +121,10 @@ class AP_OT_asset_create_lo(bpy.types.Operator):
         return {"FINISHED"}
 
 
-registry = [AP_OT_asset_create_lo, AP_OT_use_gn_subdiv, AP_OT_set_gn_subdiv]
+registry = [
+    OBJECT_OT_ap_protected_publish,
+    AP_OT_asset_create_lo,
+    AP_OT_use_gn_subdiv,
+    AP_OT_set_gn_subdiv,
+    AP_OT_asset_working_file,
+]
